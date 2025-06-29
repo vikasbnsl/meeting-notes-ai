@@ -1,10 +1,10 @@
 {
   "name": "gemma-audio-transcriber",
   "version": "1.0.0",
-  "main": "record_and_transcribe.js",
+  "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "start": "node record_and_transcribe.js"
+    "start": "node src/main.js"
   },
   "dependencies": {
     "@huggingface/transformers": "latest",

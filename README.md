@@ -1,38 +1,29 @@
 # Gemma Audio Transcriber
 
-This Node.js app records audio from your microphone, saves it as `recording.wav` on your Desktop, sends it to a local transcription API, and writes the transcription to `transcript.txt` on your Desktop.
+This project records audio from your microphone, transcribes it using Hugging Face's Transformers.js, and saves the transcription to a text file.
 
-## Features
-- Records from the default microphone (macOS & Linux supported)
-- Stops after 1 second of silence or on Ctrl+C
-- Saves raw audio as WAV
-- Sends the audio to `http://localhost:11434/transcribe` with `model=gemma3n`
-- Writes the transcription result to your Desktop
+## Project Structure
+
+-   `src/main.js`: The main entry point of the application.
+-   `src/recorder.js`: Handles the audio recording functionality.
+-   `src/transcriber.js`: Handles the audio transcription functionality.
+-   `src/utils.js`: Contains utility functions and constants.
+-   `package.json`: Defines the project's dependencies and scripts.
+
+## Installation
+
+1.  Install Node.js: [https://nodejs.org/](https://nodejs.org/)
+2.  Clone the repository: `git clone <repository-url>`
+3.  Install dependencies: `npm install`
 
 ## Usage
 
-1. Install dependencies:
+To start the application, run the following command:
 
-    ```sh
-    npm install
-    ```
+```bash
+npm start
+```
 
-2. Run the app:
+The application will start recording audio from your microphone. Speak into your microphone, and the application will automatically detect silence and stop recording. You can also press `Enter` to stop the recording manually.
 
-    ```sh
-    node record_and_transcribe.js
-    ```
-
-3. Speak into your microphone. Recording stops after 1 second of silence or when you press Ctrl+C.
-
-4. The files `recording.wav` and `transcript.txt` will appear on your Desktop.
-
----
-
-**Dependencies:**
-- node-record-lpcm16
-- wav
-- axios
-- form-data
-
-**Note:** Requires a transcription server running at `http://localhost:11434/transcribe` that accepts `multipart/form-data` with a `file` and `model` field.
+The recorded audio will be saved as `recording.wav` on your desktop, and the transcription will be saved as `transcript.txt` on your desktop.
