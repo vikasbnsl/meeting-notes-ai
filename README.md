@@ -7,7 +7,8 @@ This project provides a simple audio transcription service using a local Python 
 - Records audio from your microphone.
 - Sends audio to a local Python service for transcription.
 - Uses the `openai/whisper-large-v3` model for high-accuracy, multilingual (English and Hindi) speech-to-text transcription.
-- Displays transcription directly in the console.
+- Uses a local `mistralai/Mistral-7B-Instruct-v0.2` model to generate a summary, action items, and follow-ups from the transcription.
+- Displays transcription and processed text directly in the console.
 
 ## Prerequisites
 
@@ -41,13 +42,14 @@ git clone https://github.com/vikasbnsl/llm-audio-transcriber.git
 cd llm-audio-transcriber
 ```
 
-### 2. Download the Whisper Model
+### 2. Download the Models
 
-The Python service uses the `openai/whisper-large-v3` model. You need to download it from Hugging Face. This model is large (around 3GB) and requires significant RAM/VRAM.
+The Python service uses the `openai/whisper-large-v3` and `mistralai/Mistral-7B-Instruct-v0.2` models. You need to download them from Hugging Face. These models are large and require significant RAM/VRAM.
 
 ```bash
 git lfs install
 git clone https://huggingface.co/openai/whisper-large-v3 python-service/models/whisper-large-v3
+git clone https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2 python-service/models/Mistral-7B-Instruct-v0.2
 ```
 
 ### 3. Set up the Python Transcription Service
@@ -61,7 +63,7 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 
-**Important:** Ensure the `MODEL_PATH` in `python-service/main.py` is correctly set to the path where you cloned the Whisper model (e.g., `MODEL_PATH = "./models/whisper-large-v3"`).
+**Important:** Ensure the model paths in `python-service/main.py` are correctly set to the paths where you cloned the models.
 
 ### 4. Set up the Node.js Client
 
@@ -76,7 +78,7 @@ npm install
 
 ### 1. Start the Python Transcription Service
 
-Open a new terminal, navigate to the `python-service` directory, activate the virtual environment, and start the Python Flask server. This server must be running for the Node.js client to work.
+Open a new terminal, navigate to the `python-service` directory, activate the virtual environment, and start the Python Flask server. This server must be running for the Node.js client to work. The application will automatically detect and use your MacBook's GPU for significantly faster performance.
 
 ```bash
 cd python-service
@@ -92,12 +94,12 @@ Open another terminal, navigate to the project root, and run the Node.js client.
 npm start
 ```
 
-Follow the prompts in the Node.js client terminal to record audio. The transcription will be displayed directly in the console.
+Follow the prompts in the Node.js client terminal to record audio. The transcription and processed text will be displayed directly in the console.
 
 ## Troubleshooting
 
 - **`ECONNREFUSED` error:** Ensure the Python service is running before starting the Node.js client.
 - **Missing Python modules:** Make sure you've activated the virtual environment and installed all dependencies using `pip install -r requirements.txt`.
-- **Model loading errors:** Verify that `MODEL_PATH` in `python-service/main.py` points to the correct local path of the downloaded Whisper model.
+- **Model loading errors:** Verify that the model paths in `python-service/main.py` point to the correct local paths of the downloaded models.
 - **Transcription accuracy:** The `whisper-large-v3` model is highly capable. Ensure clear audio input for best results. For multilingual transcription, the model automatically detects the language.
-- **`git-lfs` not found:** Ensure you have installed Git LFS and run `git lfs install` before cloning the model repository.
+- **`git-lfs` not found:** Ensure you have installed Git LFS and run `git lfs install` before cloning the model repositories.

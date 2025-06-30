@@ -1,5 +1,6 @@
 import { startRecording } from './recorder.js';
 import { transcribeAudio } from './transcriber.js';
+import { processTranscription } from './llm.js';
 
 async function main() {
   try {
@@ -23,6 +24,11 @@ async function main() {
     const transcription = await transcribeAudio(audioData);
     if (transcription) {
       console.log('Transcription:', transcription);
+      const llmResult = await processTranscription(transcription);
+      if (llmResult) {
+        console.log('\n--- Meeting Notes ---\n');
+        console.log(llmResult);
+      }
     }
     process.exit(0);
   } catch (error) {
