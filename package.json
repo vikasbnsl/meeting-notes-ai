@@ -1,5 +1,5 @@
 {
-  "name": "gemma-audio-transcriber",
+  "name": "llm-audio-transcriber",
   "version": "1.0.0",
   "main": "src/main.js",
   "type": "module",

@@ -45,7 +45,7 @@ def transcribe_audio():
 
     # --- Generate Transcription ---
     with torch.inference_mode():
-        predicted_ids = model.generate(input_features.to(model.device), language='en', task='transcribe')
+        predicted_ids = model.generate(input_features.to(model.device), task='transcribe')
 
     # Decode the output
     transcription = processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
