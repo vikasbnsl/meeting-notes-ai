@@ -1,41 +1,35 @@
-import { pipeline } from '@huggingface/transformers';
 import fs from 'fs';
-import pkg from 'wavefile';
-const { WaveFile } = pkg;
+import FormData from 'form-data';
+import fetch from 'node-fetch';
 
 export async function transcribeAudio(audioPath) {
   try {
-    console.log('Transcribing audio...');
-    const transcriber = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
+    console.log('Sending audio to Python service for transcription...');
 
-    const wavFileData = fs.readFileSync(audioPath);
-    const wav = new WaveFile(wavFileData);
-    wav.toBitDepth('32f');
-    wav.toSampleRate(16000);
-    let audioData = wav.getSamples();
-    if (Array.isArray(audioData)) {
-      if (audioData.length > 1) {
-        const SCALING_FACTOR = Math.sqrt(2);
-        let mono = new Float32Array(audioData[0].length);
-        for (let i = 0; i < audioData[0].length; ++i) {
-          mono[i] = SCALING_FACTOR * (audioData[0][i] + audioData[1][i]) / 2;
-        }
-        audioData = mono;
-      } else {
-        audioData = audioData[0];
-      }
+    // Create a form and append the audio file
+    const form = new FormData();
+    form.append('audio', fs.createReadStream(audioPath));
+
+    // Send the request to the Python service
+    const response = await fetch('http://localhost:5001/transcribe', {
+      method: 'POST',
+      body: form,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const output = await transcriber(audioData);
+    const data = await response.json();
 
-    if (output && output.text) {
-      return output.text;
+    if (data && data.transcription) {
+      return data.transcription;
     } else {
-      console.error('Unexpected response:', output);
+      console.error('Unexpected response from Python service:', data);
       return null;
     }
   } catch (err) {
-    console.error('Transcription error:', err);
+    console.error('Error communicating with Python service:', err);
     throw err;
   }
 }
