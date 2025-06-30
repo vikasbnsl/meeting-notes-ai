@@ -1,15 +1,12 @@
 import { startRecording } from './recorder.js';
 import { transcribeAudio } from './transcriber.js';
-import { transcriptPath } from './utils.js';
-import fs from 'fs';
 
 async function main() {
   try {
-    const audioPath = await startRecording();
-    const transcription = await transcribeAudio(audioPath);
+    const audioData = await startRecording(); // Now returns audio data directly
+    const transcription = await transcribeAudio(audioData);
     if (transcription) {
-      fs.writeFileSync(transcriptPath, transcription, 'utf8');
-      console.log('Transcription saved to', transcriptPath);
+      console.log('Transcription:', transcription);
     }
     process.exit(0);
   } catch (error) {

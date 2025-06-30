@@ -1,11 +1,10 @@
 import record from 'node-record-lpcm16';
-import wav from 'wav';
 import readline from 'readline';
-import { wavPath } from './utils.js';
 
 const SILENCE_DURATION_MS = 2000; // 2 seconds
 let silenceTimeout;
 let recordingStopped = false;
+let audioBufferChunks = [];
 
 export function startRecording() {
   return new Promise((resolve, reject) => {
@@ -22,12 +21,6 @@ export function startRecording() {
       rl.close();
     });
 
-    const fileWriter = new wav.FileWriter(wavPath, {
-      channels: 1,
-      sampleRate: 16000,
-      bitDepth: 16,
-    });
-
     const recordingProcess = record.record({
       sampleRate: 16000,
       threshold: 0,
@@ -35,13 +28,9 @@ export function startRecording() {
       verbose: false,
     });
 
-    let fileWriterEnded = false;
-
     function handleMicData(chunk) {
-      if (!fileWriterEnded) {
-        fileWriter.write(chunk);
-        resetSilenceTimeout();
-      }
+      audioBufferChunks.push(chunk);
+      resetSilenceTimeout();
     }
 
     const mic = recordingProcess.stream()
@@ -67,13 +56,12 @@ export function startRecording() {
 
       mic.removeListener('data', handleMicData);
       mic.destroy && mic.destroy();
-      fileWriterEnded = true;
-      fileWriter.end(() => {
-        console.log('Saved recording to', wavPath);
-        resolve(wavPath);
-      });
       recordingProcess.stop();
       if (silenceTimeout) clearTimeout(silenceTimeout);
+
+      const fullAudioBuffer = Buffer.concat(audioBufferChunks);
+      audioBufferChunks = []; // Clear chunks for next recording
+      resolve(fullAudioBuffer);
     }
 
     process.on('SIGINT', () => {

@@ -1,14 +1,13 @@
-import fs from 'fs';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 
-export async function transcribeAudio(audioPath) {
+export async function transcribeAudio(audioBuffer) {
   try {
     console.log('Sending audio to Python service for transcription...');
 
-    // Create a form and append the audio file
+    // Create a form and append the audio buffer
     const form = new FormData();
-    form.append('audio', fs.createReadStream(audioPath));
+    form.append('audio', audioBuffer, { filename: 'recording.wav', contentType: 'audio/wav' });
 
     // Send the request to the Python service
     const response = await fetch('http://localhost:5001/transcribe', {
