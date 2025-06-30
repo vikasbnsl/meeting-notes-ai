@@ -14,7 +14,7 @@ app = Flask(__name__)
 # git clone https://huggingface.co/google/gemma-3n-e4b-it path/to/your/local/model
 
 # Update this path to where you've stored the model
-MODEL_PATH = "openai/whisper-small"
+MODEL_PATH = "openai/whisper-large-v3"
 
 # Load the processor and model
 processor = WhisperProcessor.from_pretrained(MODEL_PATH)
