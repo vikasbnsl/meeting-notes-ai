@@ -16,8 +16,8 @@ Follow these steps to set up and run the project:
 ### 1. Clone the Repository (if you haven't already)
 
 ```bash
-git clone <repository_url>
-cd gemma-audio
+git clone https://github.com/vikasbnsl/llm-audio-transcriber.git
+cd llm-audio-transcriber
 ```
 
 ### 2. Download the Whisper Model
