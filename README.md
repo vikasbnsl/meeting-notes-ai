@@ -9,11 +9,32 @@ This project provides a simple audio transcription service using a local Python 
 - Uses the `openai/whisper-large-v3` model for high-accuracy, multilingual (English and Hindi) speech-to-text transcription.
 - Displays transcription directly in the console.
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system.
+
+### For macOS users (using [Homebrew](https://brew.sh/)):
+
+```bash
+# Install Homebrew if you don't have it
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install prerequisites
+brew install git git-lfs node python
+```
+
+### For other operating systems (Linux/Windows):
+
+- **Git:** [Install Git](https://git-scm.com/downloads)
+- **Git LFS:** [Install Git LFS](https://git-lfs.github.com/)
+- **Node.js:** [Install Node.js](https://nodejs.org/en/download/) (LTS version recommended)
+- **Python:** [Install Python](https://www.python.org/downloads/) (version 3.9 or higher recommended)
+
 ## Setup and Installation
 
 Follow these steps to set up and run the project:
 
-### 1. Clone the Repository (if you haven't already)
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/vikasbnsl/llm-audio-transcriber.git
@@ -36,7 +57,8 @@ Navigate to the `python-service` directory and set up a virtual environment.
 ```bash
 cd python-service
 python3 -m venv venv
-./venv/bin/pip install -r requirements.txt
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+pip install -r requirements.txt
 ```
 
 **Important:** Ensure the `MODEL_PATH` in `python-service/main.py` is correctly set to the path where you cloned the Whisper model (e.g., `MODEL_PATH = "./models/whisper-large-v3"`).
@@ -54,10 +76,12 @@ npm install
 
 ### 1. Start the Python Transcription Service
 
-Open a new terminal, navigate to the project root, and start the Python Flask server. This server must be running for the Node.js client to work.
+Open a new terminal, navigate to the `python-service` directory, activate the virtual environment, and start the Python Flask server. This server must be running for the Node.js client to work.
 
 ```bash
-python-service/venv/bin/python3 python-service/main.py
+cd python-service
+source venv/bin/activate # On Windows use `venv\Scripts\activate`
+python main.py
 ```
 
 ### 2. Start the Node.js Client
@@ -76,3 +100,4 @@ Follow the prompts in the Node.js client terminal to record audio. The transcrip
 - **Missing Python modules:** Make sure you've activated the virtual environment and installed all dependencies using `pip install -r requirements.txt`.
 - **Model loading errors:** Verify that `MODEL_PATH` in `python-service/main.py` points to the correct local path of the downloaded Whisper model.
 - **Transcription accuracy:** The `whisper-large-v3` model is highly capable. Ensure clear audio input for best results. For multilingual transcription, the model automatically detects the language.
+- **`git-lfs` not found:** Ensure you have installed Git LFS and run `git lfs install` before cloning the model repository.
