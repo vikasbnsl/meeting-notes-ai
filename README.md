@@ -1,4 +1,4 @@
-# Gemma Audio Transcriber
+# LLM Audio Transcriber
 
 This project provides a simple audio transcription service using a local Python Flask server powered by the Hugging Face `transformers` library, and a Node.js client for recording and sending audio.
 
