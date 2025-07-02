@@ -1,13 +1,13 @@
-# LLM Audio Transcriber
+# meeting-notes-ai
 
-This project provides a simple audio transcription service using a local Python Flask server powered by the Hugging Face `transformers` library, and a Node.js client for recording and sending audio.
+Transcribes audio and summarizes meeting content using state-of-the-art AI models (Whisper and Gemma 3n) via a simple API. This project provides a simple audio transcription service using a local Python Flask server powered by the Hugging Face `transformers` library, and a Node.js client for recording and sending audio.
 
 ## Features
 
 - Records audio from your microphone.
 - Sends audio to a local Python service for transcription.
 - Uses the `openai/whisper-large-v3` model for high-accuracy, multilingual (English and Hindi) speech-to-text transcription.
-- Uses a local `mistralai/Mistral-7B-Instruct-v0.2` model to generate a summary, action items, and follow-ups from the transcription.
+- Uses Google's `google/gemma-3n-e4b` model to generate a summary, key points, and action items from the transcription.
 - Displays transcription and processed text directly in the console.
 
 ## Prerequisites
@@ -44,12 +44,12 @@ cd llm-audio-transcriber
 
 ### 2. Download the Models
 
-The Python service uses the `openai/whisper-large-v3` and `mistralai/Mistral-7B-Instruct-v0.2` models. You need to download them from Hugging Face. These models are large and require significant RAM/VRAM.
+The Python service uses the `openai/whisper-large-v3` and `google/gemma-3n-e4b` models. These models are downloaded automatically when you first run the application, but you can pre-download them from Hugging Face. These models are large and require significant RAM/VRAM.
 
 ```bash
 git lfs install
 git clone https://huggingface.co/openai/whisper-large-v3 python-service/models/whisper-large-v3
-git clone https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2 python-service/models/Mistral-7B-Instruct-v0.2
+# Gemma 3n will be downloaded automatically when first used
 ```
 
 ### 3. Set up the Python Transcription Service
@@ -78,7 +78,7 @@ npm install
 
 ### 1. Start the Python Transcription Service
 
-Open a new terminal, navigate to the `python-service` directory, activate the virtual environment, and start the Python Flask server. This server must be running for the Node.js client to work. The application will automatically detect and use your MacBook's GPU for significantly faster performance.
+Open a new terminal, navigate to the `python-service` directory, activate the virtual environment, and start the Python Flask server. This server must be running for the Node.js client to work. The application will automatically detect and use your GPU (CUDA or Mac GPU) for significantly faster performance.
 
 ```bash
 cd python-service
@@ -100,6 +100,6 @@ Follow the prompts in the Node.js client terminal to record audio. The transcrip
 
 - **`ECONNREFUSED` error:** Ensure the Python service is running before starting the Node.js client.
 - **Missing Python modules:** Make sure you've activated the virtual environment and installed all dependencies using `pip install -r requirements.txt`.
-- **Model loading errors:** Verify that the model paths in `python-service/main.py` point to the correct local paths of the downloaded models.
+- **Model loading errors:** Verify that the model paths in `python-service/main.py` point to the correct local paths of the downloaded models. The Gemma model will be automatically downloaded on first use.
 - **Transcription accuracy:** The `whisper-large-v3` model is highly capable. Ensure clear audio input for best results. For multilingual transcription, the model automatically detects the language.
 - **`git-lfs` not found:** Ensure you have installed Git LFS and run `git lfs install` before cloning the model repositories.
