@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
-from transformers import WhisperProcessor, WhisperForConditionalGeneration, AutoTokenizer, AutoModelForCausalLM
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
 import torch
 import os
 import soundfile as sf
+from gemma_processor import GemmaProcessor
 
 app = Flask(__name__)
 
@@ -22,10 +23,8 @@ WHISPER_MODEL_PATH = "openai/whisper-large-v3"
 whisper_processor = WhisperProcessor.from_pretrained(WHISPER_MODEL_PATH)
 whisper_model = WhisperForConditionalGeneration.from_pretrained(WHISPER_MODEL_PATH).to(DEVICE)
 
-# --- LLM Model Loading ---
-LLM_MODEL_PATH = "mistralai/Mistral-7B-Instruct-v0.2"
-llm_tokenizer = AutoTokenizer.from_pretrained(LLM_MODEL_PATH)
-llm_model = AutoModelForCausalLM.from_pretrained(LLM_MODEL_PATH).to(DEVICE)
+# --- Gemma Processor ---
+gemma_processor = GemmaProcessor()
 
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
@@ -63,21 +62,8 @@ def process_transcription():
         return jsonify({'error': 'No transcription provided'}), 400
 
     transcription = data['transcription']
-
-    prompt = f"""Summarize the following transcription, listing the key points and any action items.
-
-    Transcription: "{transcription}"
-
-    Summary:
-    Key Points:
-    Action Items:"""
-
-    inputs = llm_tokenizer(prompt, return_tensors="pt").to(llm_model.device)
-
-    with torch.inference_mode():
-        outputs = llm_model.generate(input_ids=inputs.input_ids, attention_mask=inputs.attention_mask, max_new_tokens=200, pad_token_id=llm_tokenizer.eos_token_id)
     
-    processed_text = llm_tokenizer.decode(outputs[0][inputs.input_ids.shape[1]:], skip_special_tokens=True)
+    processed_text = gemma_processor.process_transcription(transcription)
 
     return jsonify({'processed_text': processed_text})
 
