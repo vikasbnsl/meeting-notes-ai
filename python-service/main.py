@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
 import torch
 import os
 import soundfile as sf
 from gemma_processor import GemmaProcessor
+from gemma_transcriber import GemmaTranscriber
 
 app = Flask(__name__)
 
@@ -18,16 +18,12 @@ def get_device():
 DEVICE = get_device()
 print(f"Using device: {DEVICE}")
 
-# --- Whisper Model Loading ---
-WHISPER_MODEL_PATH = "openai/whisper-large-v3"
-whisper_processor = WhisperProcessor.from_pretrained(WHISPER_MODEL_PATH)
-whisper_model = WhisperForConditionalGeneration.from_pretrained(WHISPER_MODEL_PATH).to(DEVICE)
-
-# --- Gemma Processor ---
+# --- Gemma Processor and Transcriber ---
 gemma_processor = GemmaProcessor()
+gemma_transcriber = GemmaTranscriber()
 
-@app.route('/transcribe', methods=['POST'])
-def transcribe_audio():
+@app.route('/transcribe-and-process', methods=['POST'])
+def transcribe_and_process():
     if 'audio' not in request.files:
         return jsonify({'error': 'No audio file provided'}), 400
 
@@ -39,31 +35,22 @@ def transcribe_audio():
         temp_audio_path = tmp_file.name
 
     try:
-        audio_input, sample_rate = sf.read(temp_audio_path)
-        input_features = whisper_processor(audio_input, sampling_rate=sample_rate, return_tensors="pt").input_features
+        # Transcribe the audio file
+        transcription = gemma_transcriber.transcribe(temp_audio_path)
+        print(f"Transcription result: {transcription}") # Added logging
+        if "Error" in transcription:
+             raise Exception(transcription)
+
+        # Process the transcription
+        processed_text = gemma_processor.process_transcription(transcription)
+        print(f"Processed text result: {processed_text}") # Added logging
 
     except Exception as e:
         os.remove(temp_audio_path)
         return jsonify({'error': f'Error processing audio: {e}'}), 500
-
-    with torch.inference_mode():
-        predicted_ids = whisper_model.generate(input_features.to(whisper_model.device), task='transcribe')
-
-    transcription = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0].strip()
-
-    os.remove(temp_audio_path)
-
-    return jsonify({'transcription': transcription})
-
-@app.route('/process-transcription', methods=['POST'])
-def process_transcription():
-    data = request.get_json()
-    if not data or 'transcription' not in data:
-        return jsonify({'error': 'No transcription provided'}), 400
-
-    transcription = data['transcription']
-    
-    processed_text = gemma_processor.process_transcription(transcription)
+    finally:
+        if os.path.exists(temp_audio_path):
+            os.remove(temp_audio_path)
 
     return jsonify({'processed_text': processed_text})
 

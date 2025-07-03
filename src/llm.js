@@ -1,16 +1,16 @@
 
 import fetch from 'node-fetch';
 
-export async function processTranscription(transcription) {
+export async function processTranscription(audioData) {
   try {
-    console.log('Sending transcription to local LLM for processing...');
+    console.log('Sending audio to local LLM for transcription and processing...');
 
-    const response = await fetch('http://localhost:5001/process-transcription', {
+    const formData = new FormData();
+    formData.append('audio', new Blob([audioData], { type: 'audio/wav' }), 'audio.wav');
+
+    const response = await fetch('http://localhost:5001/transcribe-and-process', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ transcription }),
+      body: formData,
     });
 
     if (!response.ok) {
